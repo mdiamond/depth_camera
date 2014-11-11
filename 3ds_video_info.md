@@ -23,11 +23,13 @@ Input #0, avi, from 'n3ds.AVI':
 * Audio Bit Depth: 4 bits
 
 Demux the left and right video streams with ffmpeg:
-`ffmpeg -i <3ds_video>.AVI -vcodec copy -an -map 0:0 <3ds_video_left>.AVI`
+
+`ffmpeg -i <3ds_video>.AVI -vcodec copy -an -map 0:2 <3ds_video_left>.AVI`
 
 `ffmpeg -i <3ds_video>.AVI -vcodec copy -an -map 0:0 <3ds_video_right>.AVI`
 
 Split the videos into frames.
+
 `ffmpeg -i <3ds_video_left>.AVI -r 20 -f image2 <3ds_video_left>/%03d.png`
 
 `ffmpeg -i <3ds_video_right>.AVI -r 20 -f image2 <3ds_video_right>/%03d.png`

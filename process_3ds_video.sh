@@ -29,7 +29,7 @@ fi
 
 echo "Demux $VIDEO_NAME into $VIDEO_LEFT_FNAME and $VIDEO_RIGHT_FNAME..."
 
-ffmpeg -i $VIDEO_FNAME -vcodec copy -an -map 0:0 $VIDEO_LEFT_FNAME
+ffmpeg -i $VIDEO_FNAME -vcodec copy -an -map 0:2 $VIDEO_LEFT_FNAME
 if [ $? -eq 0 ]; then
     echo "Demuxed $VIDEO_FNAME into $VIDEO_LEFT_FNAME."
 else
