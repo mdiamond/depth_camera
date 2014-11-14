@@ -68,6 +68,7 @@ Progress Report 1 is an updated and expanded version of your initial proposal. I
 * Updated Project topic
 * Updated objectives with associated measurable results
 * Updated schedule for meeting objectives
+
 Each group should have recieved an evaluation of their initial proposal by 4 November. Using this evaluation, update your topic, objectives, and schedule as necessary, and include it in your progress report.
 
 Further, for any results or objectives that you planned to achieve by the Progress Report 1 due date, demonstrate that you have achieved them by providing images, video, or starter code. If you missed your planned completion date, explain what challenges you faced that prevented you from achieving them.
@@ -79,7 +80,11 @@ Include an updated schedule in your progress report that reflects what you belie
 By the due date, place a file `progress_report_1.pdf' in the `project_4' repository of your group members.
 
 ### Progress Report 2 (10 points), Due 20 Nov, 11:59pm
-Details to come.
+Requirements are the same as for progress report 1, except you should address the goals for the time period between progress report 1 and 2.
+
+#### How to turn in.
+
+By the due date, place a file `progress_report_2.pdf` in the `project_4' repository of your group members.
 
 ### Final report and implementation (50 points), Due 2 Dec, 11:59pm
 Details to come.

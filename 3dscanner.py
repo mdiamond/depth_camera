@@ -11,6 +11,10 @@ LOWE_RATIO = 0.8
 
 
 def _rectify_pair(sift, image_left, image_right):
+    """
+    Rectifies a single set of stereo images
+    """
+    # Get key points for both images, find matches
     kp_left, desc_left = sift.detectAndCompute(image_left, None)
     kp_right, desc_right = cv2.SIFT().detectAndCompute(image_right, None)
     index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=TREES)
@@ -63,61 +67,64 @@ def _rectify_pair(sift, image_left, image_right):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture("test_data/videos/HNI_0045_left/%03d.png")
-    right_video = cv2.VideoCapture("test_data/videos/HNI_0045_right/%03d.png")
+    left_video = cv2.VideoCapture("test_data/videos/HNI_0054_left/%03d.png")
+    right_video = cv2.VideoCapture("test_data/videos/HNI_0054_right/%03d.png")
 
     # Set up a SIFT feature matcher
     sift = cv2.SIFT()
 
     # Set up the disparity calculator
-    stereo = cv2.StereoSGBM(minDisparity=0,
-    numDisparities=64,
-    SADWindowSize=7,
+    stereo = cv2.StereoSGBM(minDisparity=16,
+    numDisparities=96,
+    SADWindowSize=3,
     uniquenessRatio=10,
     speckleWindowSize=100,
-    speckleRange=5,
-    disp12MaxDiff=20,
-    P1=8 * 3 * 7 ** 2,
-    P2=32 * 3 * 7 ** 2,
+    speckleRange=32,
+    disp12MaxDiff=1,
+    P1=216,
+    P2=864,
     fullDP=False)
 
     # Play the left video
-    # ret, frame = left_video.read()
-    # while ret is True:
-    #     cv2.imshow("frame", frame)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
-    #     ret, frame = left_video.read()
+    #ret, frame = left_video.read()
+    #while ret is True:
+    #    cv2.imshow("frame", frame)
+    #    if cv2.waitKey(1) & 0xFF == ord('q'):
+    #        break
+    #    ret, frame = left_video.read()
 
     # Play the right video
-    # ret, frame = right_video.read()
-    # while ret is True:
-    #     cv2.imshow("frame", frame)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
-    #     ret, frame = right_video.read()
+    #ret, frame = right_video.read()
+    #while ret is True:
+    #    cv2.imshow("frame", frame)
+    #    if cv2.waitKey(1) & 0xFF == ord('q'):
+    #        break
+    #    ret, frame = right_video.read()
 
     ret, frame_left = left_video.read()
     ret, frame_right = right_video.read()
-    # while ret is True:
-    # frame_left, frame_right = _rectify_pair(sift,
-    #                                         frame_left,
-    #                                         frame_right)
-    disparity = stereo.compute(frame_left,
-                                frame_right).astype(np.float32) / 16.0
-    disparity = np.uint8(disparity)
+    while ret is True:
+    #frame_left, frame_right = _rectify_pair(sift,
+    #                                        frame_left,
+    #                                        frame_right)
+        disparity = stereo.compute(frame_left,
+                                    frame_right).astype(np.float32) / 16.0
+        disparity = np.uint8(disparity)
 
-    cv2.imshow('disparity', disparity)
-    cv2.waitKey()
-    # ret, frame_left = left_video.read()
-    # ret, frame_right = right_video.read()
+        cv2.imshow('disparity', disparity)
+        cv2.waitKey(1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+        ret, frame_left = left_video.read()
+        ret, frame_right = right_video.read()
 
 
     # Destroy all windows
     cv2.destroyAllWindows()
 
     # Convert the disparity image into a single channel image
-    # disparity = np.uint8(disparity)
+    #disparity = np.uint8(disparity)
 
 if __name__ == '__main__':
     main()
