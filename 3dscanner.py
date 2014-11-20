@@ -142,7 +142,7 @@ def main():
             cv2.imshow('left', frame_left)
             cv2.imshow('right', frame_right)
             #disparity = np.float32(disparity)
-            #displayDepth('tuner', disparity)
+            #_displayDepth('tuner', disparity)
 
             k = cv2.waitKey(1) & 0xFF
             if k == 27:
@@ -150,7 +150,7 @@ def main():
 
             # Update based on GUI values
             minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
-            numDisparities = (cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16
+            numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
             SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
             P1 = cv2.getTrackbarPos('P1', 'tuner')
             P2 = cv2.getTrackbarPos('P2', 'tuner')
