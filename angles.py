@@ -180,7 +180,7 @@ def main():
         disparity = get_avg_disparity(left_video, right_video) #Calculates disparity average of view
         focal_length = 3
         ply_string = point_cloud(disparity, frame_left, focal_length) #forms point cloud
-        with open("out" + i + ".ply", 'w') as f:
+        with open("point_clouds/out" + i + ".ply", 'w') as f:
             f.write(ply_string)
 
     #JOIN POINT CLOUDS HERE:
