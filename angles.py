@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import StringIO
 
 # FLANN matching variables
 FLANN_INDEX_KDTREE = 0
@@ -10,17 +10,24 @@ KNN_ITERS = 2
 LOWE_RATIO = 0.8
 
 # Set up the disparity calculator
-stereo = cv2.StereoSGBM(minDisparity=16,
-numDisparities=96,
-SADWindowSize=3,
-uniquenessRatio=10,
-speckleWindowSize=100,
-speckleRange=32,
-disp12MaxDiff=1,
-P1=216,
-P2=864,
-fullDP=False)
+stereo = cv2.StereoSGBM(minDisparity=22,
+numDisparities=64,
+SADWindowSize=10,
+P1=600,
+P2=2400)
 
+# PLY file header
+ply_header = '''ply
+    format ascii 1.0
+    element vertex %(vert_num)d
+    property float x
+    property float y
+    property float z
+    property uchar red
+    property uchar green
+    property uchar blue
+    end_header
+    '''
 
 def _rectify_pair(sift, image_left, image_right):
     """
@@ -95,7 +102,7 @@ def get_avg_disparity(left_video, right_video):
         avg_disparity = ((avg_disparity * (count-1)) + disparity)/count
         print avg_disparity
 
-        cv2.imshow('disparity', np.uint8(disparity))
+        cv2.imshow('disparity', np.uint8(avg_disparity))
         cv2.waitKey(1)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -106,7 +113,7 @@ def get_avg_disparity(left_video, right_video):
     
     # Destroy all windows
     cv2.destroyAllWindows()
-    cv2.imshow('totaldisparity', avg_disparity)
+    cv2.imshow('totaldisparity', np.uint8(avg_disparity))
     cv2.waitKey(0)
 
     return avg_disparity
@@ -169,10 +176,12 @@ def main():
         #    ret, frame = right_video.read()
         
         ret, frame_left = left_video.read()
+        ret, frame_right = right_video.read()
         disparity = get_avg_disparity(left_video, right_video) #Calculates disparity average of view
-        
-        #focal length must be computed and inserted here
+        focal_length = 3
         ply_string = point_cloud(disparity, frame_left, focal_length) #forms point cloud
+        with open("out" + i + ".ply", 'w') as f:
+            f.write(ply_string)
 
     #JOIN POINT CLOUDS HERE:
 
