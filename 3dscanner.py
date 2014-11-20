@@ -9,6 +9,18 @@ CHECKS = 100
 KNN_ITERS = 2
 LOWE_RATIO = 0.8
 
+# Set up the disparity calculator
+stereo = cv2.StereoSGBM(minDisparity=16,
+numDisparities=96,
+SADWindowSize=3,
+uniquenessRatio=10,
+speckleWindowSize=100,
+speckleRange=32,
+disp12MaxDiff=1,
+P1=216,
+P2=864,
+fullDP=False)
+
 
 def _rectify_pair(sift, image_left, image_right):
     """
@@ -134,23 +146,11 @@ def point_cloud(disparity_image, image_left, focal_length):
 def main():
     for i in ["0", "45", "90", "135", "180", "225", "270", "315"]:
         # Open the left and right streams
-        left_video = cv2.VideoCapture("test_data/videos/HNI_" + i + "0054_left/$03d.png")
-        right_video = cv2.VideoCapture("test_data/videos/HNI_" + i + "0054_right/%03d.png")
+        left_video = cv2.VideoCapture("test_data/videos/ESB/HNI_" + i + "_left/$03d.png")
+        right_video = cv2.VideoCapture("test_data/videos/ESB/HNI_" + i + "_right/%03d.png")
 
         # Set up a SIFT feature matcher
         sift = cv2.SIFT()
-
-        # Set up the disparity calculator
-        stereo = cv2.StereoSGBM(minDisparity=16,
-        numDisparities=96,
-        SADWindowSize=3,
-        uniquenessRatio=10,
-        speckleWindowSize=100,
-        speckleRange=32,
-        disp12MaxDiff=1,
-        P1=216,
-        P2=864,
-        fullDP=False)
 
         # Play the left video
         #ret, frame = left_video.read()
