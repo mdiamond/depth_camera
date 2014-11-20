@@ -2,19 +2,54 @@ import cv2
 import numpy as np
 
 
+#############
+# CONSTANTS #
+#############
+
 # FLANN matching variables
 FLANN_INDEX_KDTREE = 0
 TREES = 5
 CHECKS = 100
 KNN_ITERS = 2
 LOWE_RATIO = 0.8
+# StereoSGBM values
+minDisparity = 0
+numDisparities = 64
+SADWindowSize = 5
+P1 = 8 * 3 * SADWindowSize ** 2
+P2 = 32 * 3 * SADWindowSize ** 2
+disp12MaxDiff = -1
+# The header for a PLY point cloud
+PLY_HEADER = '''ply
+format ascii 1.0
+element vertex %(vert_num)d
+property float x
+property float y
+property float z
+property uchar red
+property uchar green
+property uchar blue
+end_header
+'''
 
 
-def _rectify_pair(sift, image_left, image_right):
-    """
-    Rectifies a single set of stereo images
-    """
-    # Get key points for both images, find matches
+###########
+# HELPERS #
+##########
+
+def _displayDepth(name, mat):
+    s = v = (np.ones(mat.shape) * 255).astype(np.uint8)
+    h = ((mat -np.nanmin(mat))/ (np.nanmax(mat)- np.nanmin(mat)) * 255).astype(np.uint8)
+    cv2.imshow(name, cv2.cvtColor(cv2.merge([h,s,v]), cv2.cv.CV_HSV2BGR ))
+
+
+def _nothing(_):
+    pass
+
+
+def _rectify_stereo_pair(image_left, image_right):
+    # Extract features
+    sift = cv2.SIFT()
     kp_left, desc_left = sift.detectAndCompute(image_left, None)
     kp_right, desc_right = cv2.SIFT().detectAndCompute(image_right, None)
     index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=TREES)
@@ -44,54 +79,99 @@ def _rectify_pair(sift, image_left, image_right):
     _, h1, h2 = cv2.stereoRectifyUncalibrated(
         pts_left, pts_right, F, (width, height))
 
-    tx1 = h1[0][2]
-    ty1 = h1[1][2]
-    tx2 = h2[0][2]
-    ty2 = h2[1][2]
-
-    t1 = np.array([[1, 0, -tx1], [0, 1, -ty1], [0, 0, 1]])
-    t2 = np.array([[1, 0, -tx2], [0, 1, -ty2], [0, 0, 1]])
-
-    ht1 = t1.dot(h1)
-    ht2 = t2.dot(h2)
-
-    image_left = cv2.warpPerspective(image_left,
-                                     ht1
-                                     (width, height))
-    image_right = cv2.warpPerspective(image_right,
-                                      ht2
-                                      (width, height))
+    image_left = cv2.warpPerspective(image_left, h1, (height, width))
+    image_right = cv2.warpPerspective(image_right, h2, (height, width))
 
     return image_left, image_right
 
-def get_avg_disparity(left_video, right_video):
+
+########
+# MAIN #
+########
+
+def main():
+    # Open the left and right streams
+    left_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_left/%03d.png")
+    right_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_right/%03d.png")
+
+    # StereoSGBM values
+    minDisparity = 0
+    numDisparities = 64
+    SADWindowSize = 5
+    P1 = 8 * 3 * SADWindowSize ** 2
+    P2 = 32 * 3 * SADWindowSize ** 2
+    disp12MaxDiff = -1
+
+    # Tuner GUI
+    cv2.namedWindow('tuner')
+    cv2.createTrackbar('minDisparity', 'tuner', minDisparity, 100, _nothing)
+    cv2.createTrackbar('numDisparities', 'tuner', numDisparities, 2048, _nothing)
+    cv2.createTrackbar('SADWindowSize', 'tuner', SADWindowSize, 19, _nothing)
+    cv2.createTrackbar('P1', 'tuner', P1, 1000, _nothing)
+    cv2.createTrackbar('P2', 'tuner', P2, 100000, _nothing)
+
+    # Block matcher
+    stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
+                            P1, P2, disp12MaxDiff)
+
+    # Play the left video
+    #ret, frame = left_video.read()
+    #while ret is True:
+        #cv2.imshow("frame", frame)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+            #break
+        #ret, frame = left_video.read()
+
+    # Play the right video
+    #ret, frame = right_video.read()
+    #while ret is True:
+        #cv2.imshow("frame", frame)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+            #break
+        #ret, frame = right_video.read()
+
     ret, frame_left = left_video.read()
     ret, frame_right = right_video.read()
+    while True:
+        while ret is True:
+            #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
+            frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
+            frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
+            disparity = stereo.compute(frame_left,
+                                        frame_right).astype(np.float32) / 16
+            disparity = np.uint8(disparity)
+            cv2.imshow('tuner', disparity)
+            cv2.imshow('left', frame_left)
+            cv2.imshow('right', frame_right)
+            #disparity = np.float32(disparity)
+            #_displayDepth('tuner', disparity)
 
-    count = 0
-    avg_disparity = np.zeros((240, 480), np.uint8)
-    
-    while ret is True:
-        #frame_left, frame_right = _rectify_pair(sift,
-        #                                        frame_left,
-        #                                        frame_right)
-        
-        #forms average disparity
-        count = count + 1
-        disparity = stereo.compute(frame_left,
-                                   frame_right).astype(np.float32) / 16.0
-        avg_disparity = ((avg_disparity * (count-1)) + disparity)/count
-        print avg_disparity
+            k = cv2.waitKey(1) & 0xFF
+            if k == 27:
+                break
 
-        cv2.imshow('disparity', np.uint8(disparity))
-        cv2.waitKey(1)
+            # Update based on GUI values
+            minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
+            numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
+            SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
+            P1 = cv2.getTrackbarPos('P1', 'tuner')
+            P2 = cv2.getTrackbarPos('P2', 'tuner')
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-           break
+            stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
+                                    P1, P2, disp12MaxDiff)
+           
+            print minDisparity, numDisparities, SADWindowSize, P1, P2
 
+            # Get the next frame before attempting to run this loop again
+            ret, frame_left = left_video.read()
+            ret, frame_right = right_video.read()
+
+        # Restart the video
+        left_video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
+        right_video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
         ret, frame_left = left_video.read()
         ret, frame_right = right_video.read()
-    
+
     # Destroy all windows
     cv2.destroyAllWindows()
     cv2.imshow('totaldisparity', avg_disparity)
@@ -173,8 +253,6 @@ def main():
         
         #focal length must be computed and inserted here
         ply_string = point_cloud(disparity, frame_left, focal_length) #forms point cloud
-
-    #JOIN POINT CLOUDS HERE:
 
 if __name__ == '__main__':
     main()
