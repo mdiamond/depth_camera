@@ -91,8 +91,8 @@ def _rectify_stereo_pair(image_left, image_right):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture("test_data/videos/HNI_0060_left/%03d.png")
-    right_video = cv2.VideoCapture("test_data/videos/HNI_0060_right/%03d.png")
+    left_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_left/%03d.png")
+    right_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_right/%03d.png")
 
     # StereoSGBM values
     minDisparity = 0
@@ -108,7 +108,7 @@ def main():
     cv2.createTrackbar('numDisparities', 'tuner', numDisparities, 2048, _nothing)
     cv2.createTrackbar('SADWindowSize', 'tuner', SADWindowSize, 19, _nothing)
     cv2.createTrackbar('P1', 'tuner', P1, 1000, _nothing)
-    cv2.createTrackbar('P2', 'tuner', P2, 10000, _nothing)
+    cv2.createTrackbar('P2', 'tuner', P2, 100000, _nothing)
 
     # Block matcher
     stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
@@ -135,6 +135,8 @@ def main():
     while True:
         while ret is True:
             #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
+            frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
+            frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
             disparity = stereo.compute(frame_left,
                                         frame_right).astype(np.float32) / 16
             disparity = np.uint8(disparity)
