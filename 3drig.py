@@ -91,8 +91,8 @@ def _rectify_stereo_pair(image_left, image_right):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_left/%03d.png")
-    right_video = cv2.VideoCapture("test_data/videos/ESB/HNI_0_right/%03d.png")
+    left_video = cv2.VideoCapture(1)
+    right_video = cv2.VideoCapture(2)
 
     # StereoSGBM values
     minDisparity = 0
@@ -113,22 +113,6 @@ def main():
     # Block matcher
     stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
                             P1, P2, disp12MaxDiff)
-
-    # Play the left video
-    #ret, frame = left_video.read()
-    #while ret is True:
-        #cv2.imshow("frame", frame)
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-            #break
-        #ret, frame = left_video.read()
-
-    # Play the right video
-    #ret, frame = right_video.read()
-    #while ret is True:
-        #cv2.imshow("frame", frame)
-        #if cv2.waitKey(1) & 0xFF == ord('q'):
-            #break
-        #ret, frame = right_video.read()
 
     ret, frame_left = left_video.read()
     ret, frame_right = right_video.read()
@@ -174,8 +158,6 @@ def main():
 
     # Destroy all windows
     cv2.destroyAllWindows()
-
-    return avg_disparity
 
 
 if __name__ == '__main__':
