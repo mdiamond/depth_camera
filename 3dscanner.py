@@ -13,11 +13,11 @@ CHECKS = 100
 KNN_ITERS = 2
 LOWE_RATIO = 0.8
 # StereoSGBM values
-minDisparity = 0
-numDisparities = 64
+minDisparity = 8
+numDisparities = 206 / 16 * 16
 SADWindowSize = 5
-P1 = 8 * 3 * SADWindowSize ** 2
-P2 = 32 * 3 * SADWindowSize ** 2
+P1 = 1000
+P2 = 8200
 disp12MaxDiff = -1
 # The header for a PLY point cloud
 PLY_HEADER = '''ply

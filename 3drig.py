@@ -116,43 +116,36 @@ def main():
 
     ret, frame_left = left_video.read()
     ret, frame_right = right_video.read()
-    while True:
-        while ret is True:
-            #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
-            frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
-            frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
-            disparity = stereo.compute(frame_left,
-                                        frame_right).astype(np.float32) / 16
-            disparity = np.uint8(disparity)
-            cv2.imshow('tuner', disparity)
-            cv2.imshow('left', frame_left)
-            cv2.imshow('right', frame_right)
-            #disparity = np.float32(disparity)
-            #_displayDepth('tuner', disparity)
+    while ret is True:
+        #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
+        frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
+        frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
+        disparity = stereo.compute(frame_left,
+                                    frame_right).astype(np.float32) / 16
+        disparity = np.uint8(disparity)
+        cv2.imshow('tuner', disparity)
+        cv2.imshow('left', frame_left)
+        cv2.imshow('right', frame_right)
+        #disparity = np.float32(disparity)
+        #_displayDepth('tuner', disparity)
 
-            k = cv2.waitKey(1) & 0xFF
-            if k == 27:
-                break
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:
+            break
 
-            # Update based on GUI values
-            minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
-            numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
-            SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
-            P1 = cv2.getTrackbarPos('P1', 'tuner')
-            P2 = cv2.getTrackbarPos('P2', 'tuner')
+        # Update based on GUI values
+        minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
+        numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
+        SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
+        P1 = cv2.getTrackbarPos('P1', 'tuner')
+        P2 = cv2.getTrackbarPos('P2', 'tuner')
 
-            stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
-                                    P1, P2, disp12MaxDiff)
-           
-            print minDisparity, numDisparities, SADWindowSize, P1, P2
+        stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
+                                P1, P2, disp12MaxDiff)
+       
+        print minDisparity, numDisparities, SADWindowSize, P1, P2
 
-            # Get the next frame before attempting to run this loop again
-            ret, frame_left = left_video.read()
-            ret, frame_right = right_video.read()
-
-        # Restart the video
-        left_video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
-        right_video.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
+        # Get the next frame before attempting to run this loop again
         ret, frame_left = left_video.read()
         ret, frame_right = right_video.read()
 
