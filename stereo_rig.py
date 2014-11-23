@@ -1,3 +1,4 @@
+import calibrator
 import cv2
 import numpy as np
 
@@ -13,11 +14,11 @@ CHECKS = 100
 KNN_ITERS = 2
 LOWE_RATIO = 0.8
 # StereoSGBM values
-minDisparity = 0
-numDisparities = 64
+minDisparity = 8
+numDisparities = 206 / 16 * 16
 SADWindowSize = 5
-P1 = 8 * 3 * SADWindowSize ** 2
-P2 = 32 * 3 * SADWindowSize ** 2
+P1 = 1000
+P2 = 8200
 disp12MaxDiff = -1
 # The header for a PLY point cloud
 PLY_HEADER = '''ply
@@ -35,7 +36,7 @@ end_header
 
 ###########
 # HELPERS #
-##########
+###########
 
 def _displayDepth(name, mat):
     s = v = (np.ones(mat.shape) * 255).astype(np.uint8)
@@ -94,12 +95,14 @@ def main():
     left_video = cv2.VideoCapture(1)
     right_video = cv2.VideoCapture(2)
 
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = calibrator.calibrate(left_video, right_video)
+
     # StereoSGBM values
-    minDisparity = 0
-    numDisparities = 64
+    minDisparity = 8
+    numDisparities = 206 / 16 * 16
     SADWindowSize = 5
-    P1 = 8 * 3 * SADWindowSize ** 2
-    P2 = 32 * 3 * SADWindowSize ** 2
+    P1 = 1000
+    P2 = 8200
     disp12MaxDiff = -1
 
     # Tuner GUI
@@ -118,16 +121,20 @@ def main():
     ret, frame_right = right_video.read()
     while ret is True:
         #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
-        frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
-        frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
+        map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape, cv2.CV_32FC1)
+        map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape, cv2.CV_32FC1)
+        #frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
+        #frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
+        frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
         disparity = stereo.compute(frame_left,
                                     frame_right).astype(np.float32) / 16
         disparity = np.uint8(disparity)
-        cv2.imshow('tuner', disparity)
-        cv2.imshow('left', frame_left)
-        cv2.imshow('right', frame_right)
         #disparity = np.float32(disparity)
         #_displayDepth('tuner', disparity)
+        cv2.imshow('tuner', disparity)
+        #cv2.imshow('left', frame_left)
+        #cv2.imshow('right', frame_right)
 
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
