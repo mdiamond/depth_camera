@@ -95,7 +95,7 @@ def main():
     left_video = cv2.VideoCapture(1)
     right_video = cv2.VideoCapture(2)
 
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = calibrator.calibrate(left_video, right_video)
+    #R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = calibrator.calibrate(left_video, right_video)
 
     # StereoSGBM values
     minDisparity = 8
@@ -121,12 +121,12 @@ def main():
     ret, frame_right = right_video.read()
     while ret is True:
         #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
-        map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape, cv2.CV_32FC1)
-        map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape, cv2.CV_32FC1)
+        #map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape, cv2.CV_32FC1)
+        #map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape, cv2.CV_32FC1)
         #frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         #frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
-        frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
-        frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
+        #frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        #frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
         disparity = stereo.compute(frame_left,
                                     frame_right).astype(np.float32) / 16
         disparity = np.uint8(disparity)

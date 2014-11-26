@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import StringIO
 
+
 # FLANN matching variables
 FLANN_INDEX_KDTREE = 0
 TREES = 5
