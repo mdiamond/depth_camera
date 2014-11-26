@@ -25,7 +25,7 @@ def calibrate(left_video, right_video):
     ret_left, frame_left = left_video.read()
     ret_right, frame_right = right_video.read()
 
-    while ret_left is True and ret_right is True and len(imgpoints_left) < 10: ]
+    while ret_left is True and ret_right is True and len(imgpoints_left) < 10:
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         ret_left, corners_left = cv2.findChessboardCorners(gray_left, (6, 7), None)
@@ -38,8 +38,8 @@ def calibrate(left_video, right_video):
             objpoints_left.append(objp_left)
             objpoints_right.append(objp_right)
 
-            corners_left_2 = cv2.cornerSubPix(gray_left, corners_left, (11, 11), (-1, -1), criteria)
-            corners_right_2 = cv2.cornerSubPix(gray_right, corners_right, (11, 11), (-1, -1), criteria)
+            cv2.cornerSubPix(gray_left, corners_left, (11, 11), (-1, -1), criteria)
+            cv2.cornerSubPix(gray_right, corners_right, (11, 11), (-1, -1), criteria)
             imgpoints_left.append(corners_left)
             imgpoints_right.append(corners_right)
 
@@ -57,8 +57,7 @@ def calibrate(left_video, right_video):
         ret_right, frame_left = left_video.read()
         ret_left, frame_right = right_video.read()
 
-    # error: (-215) ni > 0 && ni == ni1 in function collectCalibrationData
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2])
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2], criteria=criteria, flags=cv2.cv.CV_CALIB_SAME_FOCAL_LENGTH)
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, frame_left.shape[: 2], R, T)
 
     return R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F
@@ -70,8 +69,8 @@ def calibrate(left_video, right_video):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture(0)
-    right_video = cv2.VideoCapture(1)
+    left_video = cv2.VideoCapture(1)
+    right_video = cv2.VideoCapture(2)
 
     # Calibrate
     calibrate(left_video, right_video)

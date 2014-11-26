@@ -1,6 +1,7 @@
 import calibrator
 import cv2
 import numpy as np
+import pdb
 
 
 #############
@@ -92,8 +93,8 @@ def _rectify_stereo_pair(image_left, image_right):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture(0)
-    right_video = cv2.VideoCapture(1)
+    left_video = cv2.VideoCapture(1)
+    right_video = cv2.VideoCapture(2)
 
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calibrator.calibrate(left_video, right_video)
 
@@ -121,6 +122,8 @@ def main():
     ret, frame_right = right_video.read()
     while ret is True:
         # frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
+        print cameraMatrix1
+        print cameraMatrix2
         map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape[:2], cv2.CV_32FC1)
         map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape[:2], cv2.CV_32FC1)
         # frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
