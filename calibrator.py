@@ -24,11 +24,12 @@ def calibrate(left_video, right_video):
 
     ret_left, frame_left = left_video.read()
     ret_right, frame_right = right_video.read()
-    while ret_left is True and ret_right is True and len(imgpoints_left) < 10:
+
+    while ret_left is True and ret_right is True and len(imgpoints_left) < 10: ]
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
-        ret_left, corners_left = cv2.findChessboardCorners(gray_left, (7, 6), None)
-        ret_right, corners_right = cv2.findChessboardCorners(gray_right, (7, 6), None)
+        ret_left, corners_left = cv2.findChessboardCorners(gray_left, (6, 7), None)
+        ret_right, corners_right = cv2.findChessboardCorners(gray_right, (6, 7), None)
 
         # If found, add object points, image points (after refining them)
         print ret_left
@@ -43,8 +44,8 @@ def calibrate(left_video, right_video):
             imgpoints_right.append(corners_right)
 
             # Draw and display the corners
-            cv2.drawChessboardCorners(frame_left, (7, 6), corners_left, ret_left)
-            cv2.drawChessboardCorners(frame_right, (7, 6), corners_right, ret_right)
+            cv2.drawChessboardCorners(frame_left, (6, 7), corners_left, ret_left)
+            cv2.drawChessboardCorners(frame_right, (6, 7), corners_right, ret_right)
 
         cv2.imshow('frame_left', frame_left)
         cv2.imshow('frame_right', frame_right)
@@ -57,8 +58,8 @@ def calibrate(left_video, right_video):
         ret_left, frame_right = right_video.read()
 
     # error: (-215) ni > 0 && ni == ni1 in function collectCalibrationData
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[:2])
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, frame_left.shape[:2], R, T)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2])
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, frame_left.shape[: 2], R, T)
 
     return R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F
 

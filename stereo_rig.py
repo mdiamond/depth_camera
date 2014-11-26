@@ -120,21 +120,21 @@ def main():
     ret, frame_left = left_video.read()
     ret, frame_right = right_video.read()
     while ret is True:
-        #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
+        # frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
         map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape[:2], cv2.CV_32FC1)
         map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape[:2], cv2.CV_32FC1)
-        #frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
-        #frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
-        frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
-        frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
+        # frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
+        # frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
+        # frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        # frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
         disparity = stereo.compute(frame_left,
                                    frame_right).astype(np.float32) / 16
         disparity = np.uint8(disparity)
-        #disparity = np.float32(disparity)
+        # disparity = np.float32(disparity)
         #_displayDepth('tuner', disparity)
         cv2.imshow('tuner', disparity)
-        #cv2.imshow('left', frame_left)
-        #cv2.imshow('right', frame_right)
+        # cv2.imshow('left', frame_left)
+        # cv2.imshow('right', frame_right)
 
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
