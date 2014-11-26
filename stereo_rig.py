@@ -40,8 +40,8 @@ end_header
 
 def _displayDepth(name, mat):
     s = v = (np.ones(mat.shape) * 255).astype(np.uint8)
-    h = ((mat -np.nanmin(mat))/ (np.nanmax(mat)- np.nanmin(mat)) * 255).astype(np.uint8)
-    cv2.imshow(name, cv2.cvtColor(cv2.merge([h,s,v]), cv2.cv.CV_HSV2BGR ))
+    h = ((mat - np.nanmin(mat)) / (np.nanmax(mat) - np.nanmin(mat)) * 255).astype(np.uint8)
+    cv2.imshow(name, cv2.cvtColor(cv2.merge([h, s, v]), cv2.cv.CV_HSV2BGR))
 
 
 def _nothing(_):
@@ -92,10 +92,10 @@ def _rectify_stereo_pair(image_left, image_right):
 
 def main():
     # Open the left and right streams
-    left_video = cv2.VideoCapture(1)
-    right_video = cv2.VideoCapture(2)
+    left_video = cv2.VideoCapture(0)
+    right_video = cv2.VideoCapture(1)
 
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = calibrator.calibrate(left_video, right_video)
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = calibrator.calibrate(left_video, right_video)
 
     # StereoSGBM values
     minDisparity = 8
@@ -121,14 +121,14 @@ def main():
     ret, frame_right = right_video.read()
     while ret is True:
         #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
-        map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape, cv2.CV_32FC1)
-        map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape, cv2.CV_32FC1)
+        map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, frame_left.shape[:2], cv2.CV_32FC1)
+        map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, frame_right.shape[:2], cv2.CV_32FC1)
         #frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         #frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
         frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
         disparity = stereo.compute(frame_left,
-                                    frame_right).astype(np.float32) / 16
+                                   frame_right).astype(np.float32) / 16
         disparity = np.uint8(disparity)
         #disparity = np.float32(disparity)
         #_displayDepth('tuner', disparity)
@@ -149,7 +149,7 @@ def main():
 
         stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
                                 P1, P2, disp12MaxDiff)
-       
+
         print minDisparity, numDisparities, SADWindowSize, P1, P2
 
         # Get the next frame before attempting to run this loop again
