@@ -25,6 +25,8 @@ def calibrate(left_video, right_video):
     ret_left, frame_left = left_video.read()
     ret_right, frame_right = right_video.read()
 
+    shape = frame_left.shape
+
     while ret_left is True and ret_right is True and len(imgpoints_left) < 10:
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
@@ -57,8 +59,8 @@ def calibrate(left_video, right_video):
         ret_right, frame_left = left_video.read()
         ret_left, frame_right = right_video.read()
 
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2], criteria=criteria, flags=cv2.cv.CV_CALIB_SAME_FOCAL_LENGTH)
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, frame_left.shape[: 2], R, T)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=criteria, flags=cv2.cv.CV_CALIB_ZERO_TANGENT_DIST)
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, shape[:2], R, T)
 
     return R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F
 

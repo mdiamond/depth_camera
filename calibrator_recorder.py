@@ -68,7 +68,7 @@ def calibrate(left_video, right_video):
         ret_right, frame_left = left_video.read()
         ret_left, frame_right = right_video.read()
 
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2], criteria=criteria, flags=cv2.cv.CV_CALIB_SAME_FOCAL_LENGTH)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, frame_left.shape[: 2], criteria=criteria, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS)
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, frame_left.shape[: 2], R, T)
 
     return R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F
