@@ -15,6 +15,8 @@ def calibrate(left_video, right_video):
     objp_left[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
     objp_right = np.zeros((6 * 7, 3), np.float32)
     objp_right[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+    objp_right *= 0.024;
+    objp_left *= 0.024;
 
     # Arrays to store object points and image points from all the images.
     objpoints_left = []  # 3d point in real world space
@@ -56,10 +58,10 @@ def calibrate(left_video, right_video):
         if k == 27:
             break
 
-        ret_right, frame_left = left_video.read()
-        ret_left, frame_right = right_video.read()
+        ret_left, frame_left = left_video.read()
+        ret_right, frame_right = right_video.read()
 
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=criteria, flags=cv2.cv.CV_CALIB_ZERO_TANGENT_DIST)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=criteria, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS)
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, shape[:2], R, T)
 
     return R1, R2, P1, P2, Q, validPixROI1, validPixROI2, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F
