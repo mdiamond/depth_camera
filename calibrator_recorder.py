@@ -126,7 +126,7 @@ def calibrate(left_video, right_video):
         ret_left, frame_left = left_video.read()
         ret_right, frame_right = right_video.read()
 
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=criteria, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS, cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=criteria, flags=cv2.cv.CV_CALIB_FIX_INTRINSIC, cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, shape[:2], R, T)
     map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, shape[:2], cv2.CV_32FC1)
     map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, shape[:2], cv2.CV_32FC1)
