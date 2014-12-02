@@ -13,9 +13,9 @@ class TestStereoRigModel(unittest.TestCase):
     def setUp(self):
         """Initializes shared state for unit tests."""
         self.left_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/left/012.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_left/012.jpeg")
         self.right_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/right/012.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_right/012.jpeg")
 
         self.expected_disparity = cv2.imread("test_data/disparity_truth.jpg")
         self.expected_pc = cv2.imread("test_data/pc_truth.ply")

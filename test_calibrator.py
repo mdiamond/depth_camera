@@ -12,14 +12,14 @@ class TestCalibrator(unittest.TestCase):
     def setUp(self):
         """Initializes shared state for unit tests."""
         self.left_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/left/%03d.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_left/%03d.jpeg")
         self.right_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/right/%03d.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_right/%03d.jpeg")
         
         self.left_calibration_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/left_k/%03d.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_left_k/%03d.jpeg")
         self.right_calibration_video = \
-            cv2.VideoCapture("test_data/videos/calibrator/right_k/%03d.jpeg")
+            cv2.VideoCapture("test_data/videos/calibrator/test_right_k/%03d.jpeg")
 
         self.camera_params_left = np.load("test_data/left_k_truth.npy")
         self.camera_params_right = np.load("test_data/right_k_truth.npy")
