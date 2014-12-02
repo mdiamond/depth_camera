@@ -4,19 +4,6 @@ import numpy as np
 import pdb
 
 
-#############
-# CONSTANTS #
-#############
-
-# StereoSGBM values
-tuner_minDisparity = 8
-tuner_numDisparities = 206 / 16 * 16
-tuner_SADWindowSize = 9
-tuner_P1 = 8 * 3 * 11 * 11
-tuner_P2 = 32 * 3 * 11 * 11
-tuner_disp12MaxDiff = -1
-
-
 ###########
 # HELPERS #
 ###########
@@ -46,11 +33,11 @@ def main():
     map_2_right = np.load("test_data/map_2_right.npy")
 
     # StereoSGBM values
-    tuner_minDisparity = 8
-    tuner_numDisparities = 206 / 16 * 16
+    tuner_minDisparity = 10
+    tuner_numDisparities = 128
     tuner_SADWindowSize = 9
-    tuner_P1 = 8 * 3 * 11 * 11
-    tuner_P2 = 32 * 3 * 11 * 11
+    tuner_P1 = 8 * 3 * 9 * 9
+    tuner_P2 = 32 * 3 * 9 * 9
     tuner_disp12MaxDiff = -1
 
     # Block matcher

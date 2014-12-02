@@ -13,13 +13,6 @@ TREES = 5
 CHECKS = 100
 KNN_ITERS = 2
 LOWE_RATIO = 0.8
-# StereoSGBM values
-minDisparity = 8
-numDisparities = 206 / 16 * 16
-SADWindowSize = 11
-P1 = 8 * 3 * 11 * 11
-P2 = 32 * 3 * 11 * 11
-disp12MaxDiff = -1
 # The header for a PLY point cloud
 PLY_HEADER = '''ply
 format ascii 1.0
@@ -88,11 +81,11 @@ def main():
     image_selected = False
 
     # StereoSGBM values
-    minDisparity = 8
-    numDisparities = 206 / 16 * 16
-    SADWindowSize = 11
-    P1 = 8 * 3 * 11 * 11
-    P2 = 32 * 3 * 11 * 11
+    minDisparity = 10
+    numDisparities = 128
+    SADWindowSize = 9
+    P1 = 8 * 3 * 9 * 9
+    P2 = 32 * 3 * 9 * 9
     disp12MaxDiff = -1
 
     # Block matcher
