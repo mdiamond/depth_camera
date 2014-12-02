@@ -13,9 +13,9 @@ CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoeffs_left, cameraMatrix_right, distCoeffs_right):
     # Prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp_left = np.zeros((6 * 7, 3), np.float32)
-    objp_left[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+    objp_left[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
     objp_right = np.zeros((6 * 7, 3), np.float32)
-    objp_right[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+    objp_right[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
     objp_left *= 0.024
     objp_right *= 0.024
 
@@ -70,12 +70,12 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoef
         ret_right, frame_right = right_video.read()
 
     print "Calculating calibration..."
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, shape[:2], criteria=CRITERIA, flags=cv2.cv.CV_CALIB_FIX_INTRINSIC, cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
+    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, (shape[1], shape[0]), criteria=CRITERIA, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS, cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
     print "Calculating rectification..."
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, shape[:2], R, T)
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, (shape[1], shape[0]), R, T)
     print "Calculating mappings..."
-    map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, shape[:2], cv2.CV_32FC1)
-    map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, shape[:2], cv2.CV_32FC1)
+    map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, (shape[1], shape[0]), cv2.CV_32FC1)
+    map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, (shape[1], shape[0]), cv2.CV_32FC1)
 
     np.save("test_data/map_1_left.npy", map_1_left)
     np.save("test_data/map_2_left.npy", map_2_left)
@@ -87,7 +87,7 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoef
 
 def calibrate_single_camera(video, name):
     objp = np.zeros((6 * 7, 3), np.float32)
-    objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
+    objp[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
     objp *= 0.024
 
     objpoints = []
