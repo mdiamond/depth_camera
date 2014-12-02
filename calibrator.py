@@ -16,8 +16,8 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoef
     objp_left[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
     objp_right = np.zeros((6 * 7, 3), np.float32)
     objp_right[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
-    objp_left *= 0.024;
-    objp_right *= 0.024;
+    objp_left *= 0.024
+    objp_right *= 0.024
 
     # Arrays to store object points and image points from all the images.
     objpoints_left = []  # 3d point in real world space
@@ -88,7 +88,7 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoef
 def calibrate_single_camera(video, name):
     objp = np.zeros((6 * 7, 3), np.float32)
     objp[:, :2] = np.mgrid[0:7, 0:6].T.reshape(-1, 2)
-    objp *= 0.024;
+    objp *= 0.024
 
     objpoints = []
     imgpoints = []
@@ -131,8 +131,8 @@ def calibrate_single_camera(video, name):
 
 def main():
     # Open video streams for individual calibration
-    left_video = cv2.VideoCapture("test_data/videos/calibrator/left_k/%3d.jpeg")
-    right_video = cv2.VideoCapture("test_data/videos/calibrator/right_k/%3d.jpeg")
+    left_video = cv2.VideoCapture("test_data/videos/calibrator/left_k/%03d.jpeg")
+    right_video = cv2.VideoCapture("test_data/videos/calibrator/right_k/%03d.jpeg")
 
     # Calibrate individual cameras
     print "Calibrating left camera..."
@@ -143,11 +143,12 @@ def main():
     print "DONE"
 
     # Open video streams for stereo calibration
-    left_video = cv2.VideoCapture("test_data/videos/calibrator/left/%3d.jpeg")
-    right_video = cv2.VideoCapture("test_data/videos/calibrator/right/%3d.jpeg")
+    left_video = cv2.VideoCapture("test_data/videos/calibrator/left/%03d.jpeg")
+    right_video = cv2.VideoCapture("test_data/videos/calibrator/right/%03d.jpeg")
 
     # Calibrate stereo camera
     print "Calibrating stereo camera..."
+
     calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoeffs_left, cameraMatrix_right, distCoeffs_right)
     print "DONE"
 
