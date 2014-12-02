@@ -92,26 +92,27 @@ def main():
     stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
                             P1, P2, disp12MaxDiff)
 
-    ret_left, frame_left = left_video.read()
-    ret_right, frame_right = right_video.read()
+    ret_left, frame_left_original = left_video.read()
+    ret_right, frame_right_original = right_video.read()
     while ret_left is True and ret_right is True and image_selected is False:
-        frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
-        frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
-        frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
-        frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
-        disparity = stereo.compute(frame_left,
-                                   frame_right).astype(np.float32) / 16
+        frame_left_gray = cv2.cvtColor(frame_left_original, cv2.COLOR_BGR2GRAY)
+        frame_right_gray = cv2.cvtColor(frame_right_original, cv2.COLOR_BGR2GRAY)
+        frame_left_gray_remapped = cv2.remap(frame_left_gray, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        frame_right_gray_remapped = cv2.remap(frame_right_gray, map_1_right, map_2_right, cv2.INTER_LINEAR)
+        frame_left_color_remapped = cv2.remap(frame_left_original, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        disparity = stereo.compute(frame_left_gray_remapped,
+                                   frame_right_gray_remapped).astype(np.float32) / 16
         disparity = np.uint8(disparity)
-        cv2.imshow('frame_left', frame_left)
-        cv2.imshow('frame_right', frame_right)
+        cv2.imshow('frame_left', frame_left_gray_remapped)
+        cv2.imshow('frame_right', frame_right_gray_remapped)
         cv2.imshow('disparity', disparity)
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             image_selected = True
-        ret_left, frame_left = left_video.read()
-        ret_right, frame_right = right_video.read()
+        ret_left, frame_left_original = left_video.read()
+        ret_right, frame_right_original = right_video.read()
 
-    pc = point_cloud(disparity, frame_left, 10)
+    pc = point_cloud(disparity, frame_left_color_remapped, 10)
 
     # Destroy all windows
     cv2.destroyAllWindows()
