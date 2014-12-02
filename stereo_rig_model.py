@@ -64,15 +64,7 @@ def point_cloud(disparity_image, image_left, focal_length):
     return cloud.getvalue()
 
 
-########
-# MAIN #
-########
-
-def main():
-    # Open the left and right streams
-    left_video = cv2.VideoCapture(1)
-    right_video = cv2.VideoCapture(2)
-
+def get_stereo_depth(left_video, right_video):
     map_1_left = np.load("test_data/map_1_left.npy")
     map_2_left = np.load("test_data/map_2_left.npy")
     map_1_right = np.load("test_data/map_1_right.npy")
@@ -112,15 +104,25 @@ def main():
         ret_left, frame_left_original = left_video.read()
         ret_right, frame_right_original = right_video.read()
 
+    cv2.imwrite("test_data/disparity.jpg", disparity)
     pc = point_cloud(disparity, frame_left_color_remapped, 10)
 
     # Destroy all windows
     cv2.destroyAllWindows()
 
-    with open("file.ply", 'w') as f:
+    with open("test_data/pc.ply", 'w') as f:
         f.write(pc)
-        f.close()
 
+
+########
+# MAIN #
+########
+
+def main():
+    # Open the left and right streams
+    left_video = cv2.VideoCapture(1)
+    right_video = cv2.VideoCapture(2)
+    get_stereo_depth(left_video, right_video)
 
 if __name__ == '__main__':
     main()

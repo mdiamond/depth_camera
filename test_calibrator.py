@@ -1,4 +1,4 @@
-"""Unit tests for the 3dscanner project."""
+"""Unit tests for the calibrator module."""
 
 import cv2
 import calibrator
