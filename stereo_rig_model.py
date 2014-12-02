@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import numpy as np
 import StringIO
@@ -30,6 +31,16 @@ end_header
 ###########
 # HELPERS #
 ###########
+
+def _displayDepth(name, mat):
+    s = v = (np.ones(mat.shape) * 255).astype(np.uint8)
+    h = ((mat - np.nanmin(mat)) / (np.nanmax(mat) - np.nanmin(mat)) * 255).astype(np.uint8)
+    cv2.imshow(name, cv2.cvtColor(cv2.merge([h, s, v]), cv2.cv.CV_HSV2BGR))
+
+
+def _nothing(_):
+    pass
+
 
 def point_cloud(disparity_image, image_left, focal_length):
     """Create a point cloud from a disparity image and a focal length.
@@ -69,6 +80,11 @@ def point_cloud(disparity_image, image_left, focal_length):
 ########
 
 def main():
+    parser = argparse.ArgumentParser(description='Create a point cloud.')
+    parser.add_argument("-t", action="store", type=int)
+    parser.add_argument("filename")
+    args = parser.parse_args()
+
     # Open the left and right streams
     left_video = cv2.VideoCapture(1)
     right_video = cv2.VideoCapture(2)
@@ -83,14 +99,22 @@ def main():
     # StereoSGBM values
     minDisparity = 10
     numDisparities = 128
-    SADWindowSize = 9
-    P1 = 8 * 3 * 9 * 9
-    P2 = 32 * 3 * 9 * 9
+    SADWindowSize = 7
+    P1 = 8 * 3 ** SADWindowSize
+    P2 = 32 * 3 ** SADWindowSize
     disp12MaxDiff = -1
+
+    # Tuner GUI
+    cv2.namedWindow('tuner')
+    cv2.createTrackbar('minDisparity', 'tuner', minDisparity, 100, _nothing)
+    cv2.createTrackbar('numDisparities', 'tuner', numDisparities, 2048, _nothing)
+    cv2.createTrackbar('SADWindowSize', 'tuner', SADWindowSize, 19, _nothing)
 
     # Block matcher
     stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
                             P1, P2, disp12MaxDiff)
+
+    i = 0
 
     ret_left, frame_left_original = left_video.read()
     ret_right, frame_right_original = right_video.read()
@@ -100,24 +124,37 @@ def main():
         frame_left_gray_remapped = cv2.remap(frame_left_gray, map_1_left, map_2_left, cv2.INTER_LINEAR)
         frame_right_gray_remapped = cv2.remap(frame_right_gray, map_1_right, map_2_right, cv2.INTER_LINEAR)
         frame_left_color_remapped = cv2.remap(frame_left_original, map_1_left, map_2_left, cv2.INTER_LINEAR)
+        minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
+        numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
+        SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
+        P1 = 8 * 3 ** SADWindowSize
+        P2 = 32 * 3 ** SADWindowSize
+        # Block matcher
+        stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
+                                P1, P2, disp12MaxDiff)
         disparity = stereo.compute(frame_left_gray_remapped,
                                    frame_right_gray_remapped).astype(np.float32) / 16
-        disparity = np.uint8(disparity)
+        disparity_uint8 = np.uint8(disparity)
+        disparity_float32 = np.float32(disparity)
+        _displayDepth('tuner', disparity_float32)
         cv2.imshow('frame_left', frame_left_gray_remapped)
         cv2.imshow('frame_right', frame_right_gray_remapped)
-        cv2.imshow('disparity', disparity)
+        #cv2.imshow('disparity', disparity_uint8)
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             image_selected = True
+        if args.t == i:
+            image_selected = True
+        i = i + 1
         ret_left, frame_left_original = left_video.read()
         ret_right, frame_right_original = right_video.read()
 
-    pc = point_cloud(disparity, frame_left_color_remapped, 10)
+    pc = point_cloud(disparity_uint8, frame_left_color_remapped, 10)
 
     # Destroy all windows
     cv2.destroyAllWindows()
 
-    with open("file.ply", 'w') as f:
+    with open(args.filename, 'w') as f:
         f.write(pc)
         f.close()
 
