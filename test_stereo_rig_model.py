@@ -22,7 +22,7 @@ class TestStereoRigModel(unittest.TestCase):
         self.max_disparity_diff = 5
 
     def test_disparity(self):
-        stereo.get_stereo_depth(self.left_video, self.right_video)
+        stereo.get_stereo_depth(self.left_video, self.right_video, {"frame": -1, "filename": "test_data/pc.ply"})
         actual_disparity = cv2.imread("test_data/disparity.jpg")
         disparity_diff = cv2.absdiff(actual_disparity, self.expected_disparity)
 
@@ -33,7 +33,7 @@ class TestStereoRigModel(unittest.TestCase):
         self.assertLessEqual(median_diff, self.max_disparity_diff)
 
     def test_point_cloud(self):
-        stereo.get_stereo_depth(self.left_video, self.right_video)
+        stereo.get_stereo_depth(self.left_video, self.right_video, {"frame": -1, "filename": "test_data/pc.ply"})
         self.assertTrue(os.path.exists("test_data/pc.ply"))
         self.assertGreater(os.stat("test_data/pc.ply").st_size, 0)
 
