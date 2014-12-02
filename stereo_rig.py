@@ -8,31 +8,13 @@ import pdb
 # CONSTANTS #
 #############
 
-# FLANN matching variables
-FLANN_INDEX_KDTREE = 0
-TREES = 5
-CHECKS = 100
-KNN_ITERS = 2
-LOWE_RATIO = 0.8
 # StereoSGBM values
 tuner_minDisparity = 8
 tuner_numDisparities = 206 / 16 * 16
-tuner_SADWindowSize = 5
-tuner_P1 = 1000
-tuner_P2 = 8200
+tuner_SADWindowSize = 9
+tuner_P1 = 8 * 3 * 11 * 11
+tuner_P2 = 32 * 3 * 11 * 11
 tuner_disp12MaxDiff = -1
-# The header for a PLY point cloud
-PLY_HEADER = '''ply
-format ascii 1.0
-element vertex %(vert_num)d
-property float x
-property float y
-property float z
-property uchar red
-property uchar green
-property uchar blue
-end_header
-'''
 
 
 ###########
@@ -85,7 +67,7 @@ def main():
     cv2.createTrackbar('minDisparity', 'tuner', tuner_minDisparity, 100, _nothing)
     cv2.createTrackbar('numDisparities', 'tuner', tuner_numDisparities, 2048, _nothing)
     cv2.createTrackbar('SADWindowSize', 'tuner', tuner_SADWindowSize, 19, _nothing)
-    cv2.createTrackbar('P1', 'tuner', tuner_P1, 1000, _nothing)
+    cv2.createTrackbar('P1', 'tuner', tuner_P1, 5000, _nothing)
     cv2.createTrackbar('P2', 'tuner', tuner_P2, 100000, _nothing)
 
     while ret_left is True and ret_right is True:
@@ -98,12 +80,12 @@ def main():
         #cv2.imshow('right', frame_right)
         disparity = stereo.compute(frame_left,
                                    frame_right).astype(np.float32) / 16
-        disparity = np.uint8(disparity)
-        #disparity = np.float32(disparity)
-        #_displayDepth('tuner', disparity)
-        cv2.imshow('tuner', disparity)
-        #cv2.imshow('left', frame_left)
-        #cv2.imshow('right', frame_right)
+        #disparity = np.uint8(disparity)
+        disparity = np.float32(disparity)
+        _displayDepth('tuner', disparity)
+        #cv2.imshow('tuner', disparity)
+        cv2.imshow('left', frame_left)
+        cv2.imshow('right', frame_right)
 
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
@@ -118,8 +100,6 @@ def main():
 
         stereo = cv2.StereoSGBM(tuner_minDisparity, tuner_numDisparities, tuner_SADWindowSize,
                                 tuner_P1, tuner_P2, tuner_disp12MaxDiff)
-
-        print tuner_minDisparity, tuner_numDisparities, tuner_SADWindowSize, tuner_P1, tuner_P2, tuner_disp12MaxDiff
 
         # Get the next frame before attempting to run this loop again
         ret_left, frame_left = left_video.read()

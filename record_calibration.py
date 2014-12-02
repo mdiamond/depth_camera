@@ -17,7 +17,7 @@ def record_stereo_camera(left_video, right_video):
     shape = frame_left.shape
 
     i = 0
-    while ret_left is True and ret_right is True and i < 35:
+    while ret_left is True and ret_right is True and i < 15:
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         ret_left, corners_left = cv2.findChessboardCorners(gray_left, (6, 7), None)
@@ -34,15 +34,18 @@ def record_stereo_camera(left_video, right_video):
             cv2.drawChessboardCorners(frame_left, (6, 7), corners_left, ret_left)
             cv2.drawChessboardCorners(frame_right, (6, 7), corners_right, ret_right)
 
-            print i
-            i = i + 1
-
         cv2.imshow('frame_left', frame_left)
         cv2.imshow('frame_right', frame_right)
 
         k = cv2.waitKey(1) & 0xFF
-        if k == 27:
+        if k == ord('q'):
             break
+
+        if ret_left is True and ret_right is True:
+            keep = raw_input("Keep this frame? (y/n) ") == "y"
+            if keep is True:
+                print i
+                i = i + 1
 
         ret_left, frame_left = left_video.read()
         ret_right, frame_right = right_video.read()
@@ -58,19 +61,22 @@ def record_single_camera(video, name):
     shape = frame.shape
 
     i = 0
-    while ret is True and i < 75:
+    while ret is True and i < 30:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         ret, corners = cv2.findChessboardCorners(gray, (6, 7), None)
         if ret is True:
             cv2.imwrite("test_data/videos/calibrator/%s/%s.jpeg" % (name, str(i).zfill(3)), frame)
             cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), CRITERIA)
             cv2.drawChessboardCorners(frame, (6, 7), corners, ret)
-            print i
-            i = i + 1
         cv2.imshow('frame', frame)
         k = cv2.waitKey(1) & 0xFF
-        if k == 27:
+        if k == ord('q'):
             break
+        if ret is True:
+            keep = raw_input("Keep this frame? (y/n) ") == "y"
+            if keep is True:
+                print i
+                i = i + 1
         ret, frame = video.read()
 
     cv2.destroyAllWindows()

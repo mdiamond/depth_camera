@@ -16,9 +16,9 @@ LOWE_RATIO = 0.8
 # StereoSGBM values
 minDisparity = 8
 numDisparities = 206 / 16 * 16
-SADWindowSize = 5
-P1 = 1000
-P2 = 8200
+SADWindowSize = 11
+P1 = 8 * 3 * 11 * 11
+P2 = 32 * 3 * 11 * 11
 disp12MaxDiff = -1
 # The header for a PLY point cloud
 PLY_HEADER = '''ply
@@ -90,7 +90,7 @@ def main():
     # StereoSGBM values
     minDisparity = 8
     numDisparities = 206 / 16 * 16
-    SADWindowSize = 9
+    SADWindowSize = 11
     P1 = 8 * 3 * 11 * 11
     P2 = 32 * 3 * 11 * 11
     disp12MaxDiff = -1
@@ -106,17 +106,17 @@ def main():
         frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)
         frame_right = cv2.remap(frame_right, map_1_right, map_2_right, cv2.INTER_LINEAR)
+        disparity = stereo.compute(frame_left,
+                                   frame_right).astype(np.float32) / 16
+        disparity = np.uint8(disparity)
         cv2.imshow('frame_left', frame_left)
         cv2.imshow('frame_right', frame_right)
+        cv2.imshow('disparity', disparity)
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             image_selected = True
         ret_left, frame_left = left_video.read()
         ret_right, frame_right = right_video.read()
-
-    disparity = stereo.compute(frame_left,
-                               frame_right).astype(np.float32) / 16
-    disparity = np.uint8(disparity)
 
     pc = point_cloud(disparity, frame_left, 10)
 
