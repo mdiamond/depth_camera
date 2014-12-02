@@ -6,7 +6,7 @@ import numpy as np
 import unittest
 
 
-class Test3DScanner(unittest.TestCase):
+class TestCalibrator(unittest.TestCase):
     """Tests the functionality of the calibration module."""
 
     def setUp(self):
