@@ -89,8 +89,6 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
     }
     _, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = \
                                     cv2.stereoCalibrate(**stereo_calibrate_args)
-    # retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, (shape[1], shape[0]), criteria=CRITERIA, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS,
-    #     cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
     print "Calculating rectification..."
     stereo_rectify_args = {
         'cameraMatrix1': cameraMatrix1,
@@ -103,7 +101,6 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
     }
     R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = \
                                         cv2.stereoRectify(**stereo_rectify_args)
-    # R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, (shape[1], shape[0]), R, T)
     print "Calculating mappings..."
     map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1,
                                                          distCoeffs1, R1, P1,
