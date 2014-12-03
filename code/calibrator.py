@@ -15,7 +15,10 @@ CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
                             distCoeffs_left, cameraMatrix_right,
                             distCoeffs_right):
-    """Calibrate a stereo camera pair."""
+    """
+    Calibrate a stereo camera pair using data
+    previously recorded.
+    """
     # Prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp_left = np.zeros((6 * 7, 3), np.float32)
     objp_left[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
@@ -30,13 +33,16 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
     objpoints_right = []  # 3d point in real world space
     imgpoints_right = []  # 2d points in image plane.
 
+    # Get the first pair of frames
     ret_left, frame_left = left_video.read()
     ret_right, frame_right = right_video.read()
 
+    # Get the shape
     shape = frame_left.shape
 
+    # While there are stil images to read
     i = 0
-    while ret_left is True and ret_right is True and i < 35:
+    while ret_left is True and ret_right is True:
         gray_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         gray_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         ret_left, corners_left = cv2.findChessboardCorners(gray_left, (6, 7), None)
@@ -64,6 +70,7 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
             print i
             i = i + 1
 
+        # Display the images
         cv2.imshow('frame_left', frame_left)
         cv2.imshow('frame_right', frame_right)
 
@@ -71,9 +78,11 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
         if k == 27:
             break
 
+        # Advance to the next pair of frames
         ret_left, frame_left = left_video.read()
         ret_right, frame_right = right_video.read()
 
+    # Calibrate the stereo camera pair
     print "Calculating calibration..."
     stereo_calibrate_args = {
         'objectPoints': objpoints_left,
@@ -111,6 +120,7 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
                                                            (shape[1], shape[0]),
                                                            cv2.CV_32FC1)
 
+    # Save the calibration mappings for future use
     np.save("test_data/map_1_left.npy", map_1_left)
     np.save("test_data/map_2_left.npy", map_2_left)
     np.save("test_data/map_1_right.npy", map_1_right)
@@ -119,38 +129,48 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
 
 def calibrate_single_camera(video, name):
     """Find intrinsic parameters for a single camera."""
+    # Set up objpoints and imgpoints
     objp = np.zeros((6 * 7, 3), np.float32)
     objp[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
     objp *= 0.024
-
     objpoints = []
     imgpoints = []
 
+    # Get the first frame
     ret, frame = video.read()
 
+    # Get the shape
     shape = frame.shape
 
+    # While there are still images to read
     i = 0
-    while ret is True and i < 75:
+    while ret is True:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         ret, corners = cv2.findChessboardCorners(gray, (6, 7), None)
+        # If the chessboard was found
         if ret is True:
+            # Append objpoints, append imagepoints,
+            # show chessboard corners
             objpoints.append(objp)
             cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), CRITERIA)
             imgpoints.append(corners)
             cv2.drawChessboardCorners(frame, (6, 7), corners, ret)
             print i
             i = i + 1
+        # Display the image
         cv2.imshow('frame', frame)
         k = cv2.waitKey(1) & 0xFF
         if k == 27:
             break
+        # Get the next frame
         ret, frame = video.read()
 
+    # Calibrate the camera
     print "Calculating calibration..."
     retval, cameraMatrix, distCoeffs, rvecs, tvecs = \
                             cv2.calibrateCamera(objpoints, imgpoints, shape[:2])
 
+    # Save calibration data in our test_data directory
     np.savetxt("test_data/%s.txt" % name, cameraMatrix)
     np.save("test_data/%s.npy" % name, cameraMatrix)
 

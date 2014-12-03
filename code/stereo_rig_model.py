@@ -10,12 +10,6 @@ import StringIO
 # CONSTANTS #
 #############
 
-# FLANN matching variables
-FLANN_INDEX_KDTREE = 0
-TREES = 5
-CHECKS = 100
-KNN_ITERS = 2
-LOWE_RATIO = 0.8
 # The header for a PLY point cloud
 PLY_HEADER = '''ply
 format ascii 1.0
@@ -110,6 +104,9 @@ def get_stereo_depth(left_video, right_video, args):
 
     i = 0
 
+    # Loop through the frames and show their disparity
+    # images until one is selected manually
+    # by pressing 'q', or until the timer runs out
     ret_left, frame_left_original = left_video.read()
     ret_right, frame_right_original = right_video.read()
     while ret_left is True and ret_right is True and image_selected is False:
@@ -146,6 +143,7 @@ def get_stereo_depth(left_video, right_video, args):
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             image_selected = True
+        # The timer
         if args["frame"] == i:
             image_selected = True
         i = i + 1

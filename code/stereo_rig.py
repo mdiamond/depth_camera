@@ -57,7 +57,6 @@ def main():
     cv2.createTrackbar('P2', 'tuner', tuner_P2, 100000, _nothing)
 
     while ret_left is True and ret_right is True:
-        #frame_left, frame_right = _rectify_stereo_pair(frame_left, frame_right)
         frame_left = cv2.cvtColor(frame_left, cv2.COLOR_BGR2GRAY)
         frame_right = cv2.cvtColor(frame_right, cv2.COLOR_BGR2GRAY)
         frame_left = cv2.remap(frame_left, map_1_left, map_2_left, cv2.INTER_LINEAR)

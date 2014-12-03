@@ -4,8 +4,9 @@
 Most of our code here is for testing and debugging, however, there are a few
 notable modules:
 
-* `stereo_rig_model.py` - Stereo code, generates disparity map and point cloud
-* `calibrator.py` - Camera calibration for a stereo camera pair
+* `record_calibration.py` - Records data to use for calibration
+* `stereo_rig_model.py` - Generates disparity map and point cloud
+* `calibrator.py` - Calibrates using the data recorded in record_calibration.py
 * `stereo_camera.py` - Used to demo the stereo code
 
 To see our stereo code in action, run:
@@ -15,12 +16,30 @@ To see our stereo code in action, run:
 This will run our stereo code using the saved calibrations (for our stereo camera).
 This creates a point cloud (`point_cloud.ply`), and a disparity map (`test_data/disparity.jpg`).
 
-To re-calibrate using our calibration test videos:
+To record a new set of test data for calibration:
+
+`python record_calibration.py`
+
+This saves all recorded frames into the folders in 'test_data/videos/calibrator/', ready to be used in calibrator.py.
+
+To re-calibrate using our calibration test data:
 
 `python calibrator.py`
 
 This saves the new calibration to `test_data/`, see the final report on details
 on this data. Note that this only works with our stereo camera.
+
+To see and tune the disparity mapping that results from the calibration:
+
+`stereo_rig.py`
+
+This simply uses the saved mappings from calibrator.py to remap the images the same away every time, allowing for consistent epipolar alignment throughout, since the cameras stay in the same place. It then shows you the disparity images that result from these remappings.
+
+To capture a 2.5D model using the disparity mapping that results from the calibration:
+
+`stereo_rig_model.py`
+
+This uses the saved mappings to do everything that stereo_rig.py does, however, it also allows you to select a frame to capture into a 2.5D model via pressing q or passing the -t argument. The -t argument allows one to specify how many frames to read before capture a 2.5D model, functioning as a self-timer.
 
 To use your own, see below.
 
