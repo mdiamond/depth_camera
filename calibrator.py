@@ -1,3 +1,5 @@
+"""Camera calibration. Calibrates a single camera and a stereo camera.
+"""
 import cv2
 import numpy as np
 
@@ -10,7 +12,10 @@ CRITERIA = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 # HELPERS #
 ###########
 
-def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoeffs_left, cameraMatrix_right, distCoeffs_right):
+def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
+                            distCoeffs_left, cameraMatrix_right,
+                            distCoeffs_right):
+    """Calibrate a stereo camera pair."""
     # Prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
     objp_left = np.zeros((6 * 7, 3), np.float32)
     objp_left[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
@@ -70,22 +75,53 @@ def calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoef
         ret_right, frame_right = right_video.read()
 
     print "Calculating calibration..."
-    retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, (shape[1], shape[0]), criteria=CRITERIA, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS, cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
+    stereo_calibrate_args = {
+        'objectPoints': objpoints_left,
+        'imagePoints1': imgpoints_left,
+        'imagePoints2': imgpoints_right,
+        'imageSize': (shape[1], shape[0]),
+        'criteria': CRITERIA,
+        'flags': cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS,
+        'cameraMatrix1': cameraMatrix_left,
+        'cameraMatrix2': cameraMatrix_right,
+        'distCoeffs1': distCoeffs_left,
+        'distCoeffs2': distCoeffs_right
+    }
+    _, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = \
+                                    cv2.stereoCalibrate(**stereo_calibrate_args)
+    # retval, cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, R, T, E, F = cv2.stereoCalibrate(objpoints_left, imgpoints_left, imgpoints_right, (shape[1], shape[0]), criteria=CRITERIA, flags=cv2.cv.CV_CALIB_USE_INTRINSIC_GUESS,
+    #     cameraMatrix1=cameraMatrix_left, distCoeffs1=distCoeffs_left, cameraMatrix2=cameraMatrix_right, distCoeffs2=distCoeffs_right)
     print "Calculating rectification..."
-    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, (shape[1], shape[0]), R, T)
+    stereo_rectify_args = {
+        'cameraMatrix1': cameraMatrix1,
+        'cameraMatrix2': cameraMatrix2,
+        'distCoeffs1': distCoeffs1,
+        'distCoeffs2': distCoeffs2,
+        'imageSize': (shape[1], shape[0]),
+        'R': R,
+        'T': T
+    }
+    R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = \
+                                        cv2.stereoRectify(**stereo_rectify_args)
+    # R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv2.stereoRectify(cameraMatrix1, distCoeffs1, cameraMatrix2, distCoeffs2, (shape[1], shape[0]), R, T)
     print "Calculating mappings..."
-    map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1, distCoeffs1, R1, P1, (shape[1], shape[0]), cv2.CV_32FC1)
-    map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2, distCoeffs2, R2, P2, (shape[1], shape[0]), cv2.CV_32FC1)
+    map_1_left, map_2_left = cv2.initUndistortRectifyMap(cameraMatrix1,
+                                                         distCoeffs1, R1, P1,
+                                                         (shape[1], shape[0]),
+                                                         cv2.CV_32FC1)
+    map_1_right, map_2_right = cv2.initUndistortRectifyMap(cameraMatrix2,
+                                                           distCoeffs2, R2, P2,
+                                                           (shape[1], shape[0]),
+                                                           cv2.CV_32FC1)
 
     np.save("test_data/map_1_left.npy", map_1_left)
     np.save("test_data/map_2_left.npy", map_2_left)
     np.save("test_data/map_1_right.npy", map_1_right)
     np.save("test_data/map_2_right.npy", map_2_right)
 
-    pass
-
 
 def calibrate_single_camera(video, name):
+    """Find intrinsic parameters for a single camera."""
     objp = np.zeros((6 * 7, 3), np.float32)
     objp[:, :2] = np.mgrid[0:6, 0:7].T.reshape(-1, 2)
     objp *= 0.024
@@ -115,7 +151,8 @@ def calibrate_single_camera(video, name):
         ret, frame = video.read()
 
     print "Calculating calibration..."
-    retval, cameraMatrix, distCoeffs, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, shape[:2])
+    retval, cameraMatrix, distCoeffs, rvecs, tvecs = \
+                            cv2.calibrateCamera(objpoints, imgpoints, shape[:2])
 
     np.savetxt("test_data/%s.txt" % name, cameraMatrix)
     np.save("test_data/%s.npy" % name, cameraMatrix)
@@ -149,7 +186,9 @@ def main():
     # Calibrate stereo camera
     print "Calibrating stereo camera..."
 
-    calibrate_stereo_camera(left_video, right_video, cameraMatrix_left, distCoeffs_left, cameraMatrix_right, distCoeffs_right)
+    calibrate_stereo_camera(left_video, right_video, cameraMatrix_left,
+                            distCoeffs_left, cameraMatrix_right,
+                            distCoeffs_right)
     print "DONE"
 
     # Destroy all windows

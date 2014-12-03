@@ -1,3 +1,5 @@
+"""Generate a disparity map and point cloud from a video or images. 
+"""
 import argparse
 import cv2
 import numpy as np
@@ -76,6 +78,11 @@ def point_cloud(disparity_image, image_left, focal_length):
 
 
 def get_stereo_depth(left_video, right_video, args):
+    """
+    Create a disparity map and point cloud from a series of images.
+    Specify a specific frame to generate a disparity map and point cloud from in
+    args. 
+    """
     map_1_left = np.load("test_data/map_1_left.npy")
     map_2_left = np.load("test_data/map_2_left.npy")
     map_1_right = np.load("test_data/map_1_right.npy")
@@ -108,19 +115,28 @@ def get_stereo_depth(left_video, right_video, args):
     while ret_left is True and ret_right is True and image_selected is False:
         frame_left_gray = cv2.cvtColor(frame_left_original, cv2.COLOR_BGR2GRAY)
         frame_right_gray = cv2.cvtColor(frame_right_original, cv2.COLOR_BGR2GRAY)
-        frame_left_gray_remapped = cv2.remap(frame_left_gray, map_1_left, map_2_left, cv2.INTER_LINEAR)
-        frame_right_gray_remapped = cv2.remap(frame_right_gray, map_1_right, map_2_right, cv2.INTER_LINEAR)
-        frame_left_color_remapped = cv2.remap(frame_left_original, map_1_left, map_2_left, cv2.INTER_LINEAR)
+
+        frame_left_gray_remapped = cv2.remap(frame_left_gray, map_1_left,
+                                             map_2_left, cv2.INTER_LINEAR)
+        frame_right_gray_remapped = cv2.remap(frame_right_gray, map_1_right,
+                                              map_2_right, cv2.INTER_LINEAR)
+        frame_left_color_remapped = cv2.remap(frame_left_original,
+                                              map_1_left, map_2_left,
+                                              cv2.INTER_LINEAR)
+
         minDisparity = cv2.getTrackbarPos('minDisparity', 'tuner')
         numDisparities = max((cv2.getTrackbarPos('numDisparities', 'tuner') / 16) * 16, 16)
         SADWindowSize = cv2.getTrackbarPos('SADWindowSize', 'tuner')
         P1 = 8 * 3 ** SADWindowSize
         P2 = 32 * 3 ** SADWindowSize
+
         # Block matcher
         stereo = cv2.StereoSGBM(minDisparity, numDisparities, SADWindowSize,
                                 P1, P2, disp12MaxDiff)
+
         disparity = stereo.compute(frame_left_gray_remapped,
                                    frame_right_gray_remapped).astype(np.float32) / 16
+
         disparity_uint8 = np.uint8(disparity)
         disparity_float32 = np.float32(disparity)
         _displayDepth('tuner', disparity_float32)
