@@ -136,10 +136,10 @@ def get_stereo_depth(left_video, right_video, args):
 
         disparity_uint8 = np.uint8(disparity)
         disparity_float32 = np.float32(disparity)
-        _displayDepth('tuner', disparity_float32)
+        #_displayDepth('tuner', disparity_float32)
         cv2.imshow('frame_left', frame_left_gray_remapped)
         cv2.imshow('frame_right', frame_right_gray_remapped)
-        #cv2.imshow('disparity', disparity_uint8)
+        cv2.imshow('disparity', disparity_uint8)
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             image_selected = True

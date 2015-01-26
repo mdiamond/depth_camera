@@ -65,10 +65,10 @@ def main():
         #cv2.imshow('right', frame_right)
         disparity = stereo.compute(frame_left,
                                    frame_right).astype(np.float32) / 16
-        #disparity = np.uint8(disparity)
-        disparity = np.float32(disparity)
-        _displayDepth('tuner', disparity)
-        #cv2.imshow('tuner', disparity)
+        disparity = np.uint8(disparity)
+        #disparity = np.float32(disparity)
+        #_displayDepth('tuner', disparity)
+        cv2.imshow('tuner', disparity)
         cv2.imshow('left', frame_left)
         cv2.imshow('right', frame_right)
 
