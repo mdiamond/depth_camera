@@ -1,4 +1,4 @@
-3DSCANNER
+Depth Camera
 ========
 
 Most of our code here is for testing and debugging, however, there are a few
