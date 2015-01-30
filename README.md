@@ -41,7 +41,7 @@ This uses the saved mappings to do everything that stereo_rig.py does, however, 
 
 To use your own, see below.
 
-# Live Stereo Disparity Map
+## Live Stereo Disparity Map
 
 To see a live view of our stereo code, you need to connect two cameras in a stereo pair configuration. We expect the two cameras to be device `1` (left) and `2` (right).
 
