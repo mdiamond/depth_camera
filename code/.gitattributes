@@ -57,3 +57,4 @@ models/truett.ply filter=lfs diff=lfs merge=lfs -text
 models/wall.ply filter=lfs diff=lfs merge=lfs -text
 models/young.ply filter=lfs diff=lfs merge=lfs -text
 models/jacob.ply filter=lfs diff=lfs merge=lfs -text
+models/ellyn.ply filter=lfs diff=lfs merge=lfs -text
